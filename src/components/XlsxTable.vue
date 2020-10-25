@@ -10,31 +10,36 @@
         <div class="tableBoxMenuButtonListItem" @click="exportFile('.xls')">匯出XLS檔</div>
         <div class="tableBoxMenuButtonListItem" @click="exportFile('.ods')">匯出ODS檔</div>
         <div class="tableBoxMenuButtonListItem" @click="exportFile('.csv')">匯出CSV檔</div>
+        <div class="tableBoxMenuButtonListItem" @click="$refs.file1.click()">匯入
+          <input type="file" ref="file1" accept=".xlsx,.xls,.ods,.csv" @change="writeData" style="display:none;">
+        </div>
       </div>
     </div>
     <div class="tableBoxTag">
       <div class="tableBoxTagItem" v-for="(item,index) in json" :class="{'tableBoxTagItemOnChange':index==changeTableNum}" :key="index" @click="editChangeTableNum(index)">{{item.SheetNames}}<span @click.stop="delTable(index)">X</span></div>
       <div class="tableBoxTagItem" @click="addTable">+</div>
     </div>
-    <table border=1 class="tableBoxList">
-      <tr>
-        <td>#</td>
-        <td v-for="(item,index) in Object.keys(json[changeTableNum].data[0])" :key="index">
-          <div class="tableBoxListHeader">
-            <div class="tableBoxListHeaderTitle">{{item}}</div>
-            <div class="tableBoxListHeaderX" @click="delCell(item)">X</div>
-          </div>
-        </td>
-        <td>操作</td>
-      </tr>
-      <tr v-for="(item,index) in json[changeTableNum].data" :key="index">
-        <td>{{index+1}}</td>
-        <td v-for="(item2,index2) in Object.keys(item)" :key="index2">
-          <input type="text" class="tableBoxListInput" v-model="item[item2]">
-        </td>
-        <td><button @click="delRow(index)">刪除</button></td>
-      </tr>
-    </table>
+    <div class="tableBoxListBox">
+      <table border=1 class="tableBoxList">
+        <tr>
+          <td>#</td>
+          <td v-for="(item,index) in Object.keys(json[changeTableNum].data[0])" :key="index">
+            <div class="tableBoxListHeader">
+              <div class="tableBoxListHeaderTitle">{{item}}</div>
+              <div class="tableBoxListHeaderX" @click="delCell(item)">X</div>
+            </div>
+          </td>
+          <td>操作</td>
+        </tr>
+        <tr v-for="(item,index) in json[changeTableNum].data" :key="index">
+          <td>{{index+1}}</td>
+          <td v-for="(item2,index2) in Object.keys(item)" :key="index2">
+            <input type="text" class="tableBoxListInput" v-model="item[item2]">
+          </td>
+          <td><button @click="delRow(index)">刪除</button></td>
+        </tr>
+      </table>
+    </div>
     <div class="tableBoxCtrlMenu">
       <div class="tableBoxCtrlMenuItem" @click="addCell">增加一欄</div>
       <div class="tableBoxCtrlMenuItem" @click="addRow">增加一列</div>
@@ -102,9 +107,11 @@ export default {
       })
     },
     async writeData(e) {
-      let file=e.dataTransfer.files
+      console.log(e)
+      let file=e.target.files||e.dataTransfer.files
       let data=await this.importFile(file[0])
       console.log(file[0])
+      this.fileName=""
       for(let i=0;i<file[0].name.split(".").length-1;i++) {
         this.fileName+=file[0].name.split(".")[i]
       }
